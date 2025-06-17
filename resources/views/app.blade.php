@@ -17,11 +17,10 @@
 
     <ul class="list-group" id="task-list"></ul>
 </div>
-
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 $(document).ready(function () {
-    
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -30,18 +29,19 @@ $(document).ready(function () {
 
     fetchTasks();
 
-    // Получить все задачи
     function fetchTasks() {
         $.get('/api/tasks', function(tasks) {
             $('#task-list').empty();
             tasks.forEach(function(task) {
                 $('#task-list').append(`
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="${task.completed ? 'text-decoration-line-through' : ''}">${task.title}</span>
-                        <div>
-                            <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">
-                                ✓
-                            </button>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
+                        <div class="flex-grow-1">
+                            <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
+                            <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
+                        </div>
+                        <div class="ms-3">
+                            <button class="btn btn-sm btn-secondary edit-task me-1">✎</button>
+                            <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">✓</button>
                             <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">✕</button>
                         </div>
                     </li>
@@ -50,55 +50,67 @@ $(document).ready(function () {
         });
     }
 
-    // Добавить задачу
     $('#task-form').on('submit', function (e) {
         e.preventDefault();
         let title = $('#task-title').val();
         if (!title.trim()) return;
 
-        $.ajax({
-            url: '/api/tasks',
-            type: 'POST',
-            data: { title },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function () {
-                $('#task-title').val('');
-                fetchTasks();
-            }
+        $.post('/api/tasks', { title }, function () {
+            $('#task-title').val('');
+            fetchTasks();
         });
     });
 
-    // Удалить задачу
     $(document).on('click', '.delete-task', function () {
         let id = $(this).data('id');
 
         $.ajax({
             url: `/api/tasks/${id}`,
             type: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
             success: fetchTasks
         });
     });
 
-    // Переключить статус выполнения
     $(document).on('click', '.toggle-complete', function () {
         let id = $(this).data('id');
+        let row = $(this).closest('li');
+        let title = row.find('.task-title').text().trim();
         let completed = $(this).data('completed') ? 0 : 1;
 
         $.ajax({
             url: `/api/tasks/${id}`,
             type: 'PUT',
-            data: { completed, title: 'updated' }, // placeholder title
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
+            data: { title, completed },
             success: fetchTasks
         });
     });
+
+    // ✏️ Показать поле для редактирования
+    $(document).on('click', '.edit-task', function () {
+        let row = $(this).closest('li');
+        row.find('.task-title').addClass('d-none');
+        row.find('.task-edit-input').removeClass('d-none').focus();
+    });
+
+    // 💾 Сохранение по Enter
+    $(document).on('keydown', '.task-edit-input', function (e) {
+        if (e.key === 'Enter') {
+            let row = $(this).closest('li');
+            let id = row.data('id');
+            let newTitle = $(this).val().trim();
+            let completed = row.find('.task-title').data('completed');
+
+            if (!newTitle) return;
+
+            $.ajax({
+                url: `/api/tasks/${id}`,
+                type: 'PUT',
+                data: { title: newTitle, completed },
+                success: fetchTasks
+            });
+        }
+    });
+
 });
 </script>
 </body>
