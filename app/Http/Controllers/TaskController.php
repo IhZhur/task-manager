@@ -12,7 +12,7 @@ class TaskController extends Controller
      */
      public function index()
     {
-        return response()->json(Task::all());
+        return response()->json(Task::orderBy('position')->get());
     }
 
     /**
@@ -80,4 +80,15 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Задача удалена']);
     }
+
+    public function sort(Request $request): JsonResponse
+    {
+        $positions = $request->input('positions', []);
+        foreach ($positions as $index => $id) {
+            Task::where('id', $id)->update(['position' => $index]);
+        }
+        return response()->json(['message' => 'Task positions updated']);
+    }
+
+
 }

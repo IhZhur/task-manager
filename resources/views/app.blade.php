@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 </head>
 <body>
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11;"></div>
@@ -27,6 +28,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     $(document).ready(function () {
@@ -212,6 +214,23 @@
                 row.find('.task-title').removeClass('d-none');
                 row.find('.save-task').addClass('d-none');
                 row.find('.edit-task').removeClass('d-none');
+            }
+        });
+
+        $('#task-list').sortable({
+            update: function () {
+                const positions = $('#task-list li').map(function () {
+                    return $(this).data('id');
+                }).get();
+
+                $.ajax({
+                    url: '/api/tasks/sort',
+                    type: 'PUT',
+                    data: { positions },
+                    success: function () {
+                        showToast('Порядок задач обновлён');
+                    }
+                });
             }
         });
 
