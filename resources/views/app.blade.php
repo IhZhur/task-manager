@@ -139,6 +139,17 @@ function fetchTasks() {
                 success: fetchTasks
             });
         });
+        // ⎋ Escape — отмена редактирования
+        $(document).on('keydown', '.task-edit-input', function (e) {
+            if (e.key === 'Escape') {
+                let row = $(this).closest('li');
+                row.find('.task-edit-input').addClass('d-none');
+                row.find('.task-title').removeClass('d-none');
+                row.find('.save-task').addClass('d-none');
+                row.find('.edit-task').removeClass('d-none');
+            }
+        });
+
 });
 
 </script>
