@@ -9,7 +9,11 @@
 <body>
 <div class="container py-5">
     <h1 class="mb-4">Task Manager</h1>
-
+    <div class="btn-group mb-3" role="group" id="filter-buttons">
+        <button type="button" class="btn btn-outline-secondary active" data-filter="all">Все</button>
+        <button type="button" class="btn btn-outline-secondary" data-filter="completed">Выполненные</button>
+        <button type="button" class="btn btn-outline-secondary" data-filter="active">Активные</button>
+    </div>
     <form id="task-form" class="mb-3 d-flex">
         <input type="text" id="task-title" class="form-control me-2" placeholder="Enter task title">
         <button type="submit" class="btn btn-primary">Add Task</button>
@@ -27,28 +31,42 @@ $(document).ready(function () {
         }
     });
 
-    fetchTasks();
+    $('#filter-buttons').on('click', 'button', function () {
+        $('#filter-buttons button').removeClass('active');
+        $(this).addClass('active');
+        fetchTasks(); // обновим список с учётом фильтра
+    });
 
-    function fetchTasks() {
-        $.get('/api/tasks', function(tasks) {
-            $('#task-list').empty();
-            tasks.forEach(function(task) {
-                $('#task-list').append(`
-                    <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
-                        <div class="flex-grow-1">
-                            <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
-                            <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
-                        </div>
-                        <div class="ms-3">
-                            <button class="btn btn-sm btn-secondary edit-task me-1">✎</button>
-                            <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">✓</button>
-                            <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">✕</button>
-                        </div>
-                    </li>
-                `);
-            });
+    fetchTasks(); // первая загрузка задач
+
+function fetchTasks() {
+    $.get('/api/tasks', function(tasks) {
+        $('#task-list').empty();
+        const filter = $('#filter-buttons .active').data('filter');
+
+        tasks.forEach(function(task) {
+            if (
+                (filter === 'completed' && !task.completed) ||
+                (filter === 'active' && task.completed)
+            ) return;
+
+            $('#task-list').append(`
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
+                    <div class="flex-grow-1">
+                        <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
+                        <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
+                    </div>
+                    <div class="ms-3">
+                        <button class="btn btn-sm btn-secondary edit-task me-1">✎</button>
+                        <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">✓</button>
+                        <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">✕</button>
+                    </div>
+                </li>
+            `);
         });
-    }
+    });
+}
+
 
     $('#task-form').on('submit', function (e) {
         e.preventDefault();
