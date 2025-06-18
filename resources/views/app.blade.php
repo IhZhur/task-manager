@@ -57,7 +57,10 @@ function fetchTasks() {
                         <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
                         <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
                     </div>
-                    <div class="ms-3">
+                    <div class="ms-3 d-flex">
+                        <button class="btn btn-sm btn-primary d-none save-task me-1">
+                            <i class="bi bi-save"></i>
+                        </button>
                         <button class="btn btn-sm btn-secondary edit-task me-1">
                             <i class="bi bi-pencil"></i>
                         </button>
@@ -111,18 +114,20 @@ function fetchTasks() {
     });
 
     // ✏️ Показать поле для редактирования
-    $(document).on('click', '.edit-task', function () {
-        let row = $(this).closest('li');
-        row.find('.task-title').addClass('d-none');
-        row.find('.task-edit-input').removeClass('d-none').focus();
-    });
+        $(document).on('click', '.edit-task', function () {
+            let row = $(this).closest('li');
+            row.find('.task-title').addClass('d-none');
+            row.find('.task-edit-input').removeClass('d-none').focus();
+            row.find('.save-task').removeClass('d-none');
+            row.find('.edit-task').addClass('d-none');
+        });
 
     // 💾 Сохранение по Enter
-    $(document).on('keydown', '.task-edit-input', function (e) {
-        if (e.key === 'Enter') {
+    
+        $(document).on('click', '.save-task', function () {
             let row = $(this).closest('li');
             let id = row.data('id');
-            let newTitle = $(this).val().trim();
+            let newTitle = row.find('.task-edit-input').val().trim();
             let completed = row.find('.task-title').data('completed');
 
             if (!newTitle) return;
@@ -133,10 +138,9 @@ function fetchTasks() {
                 data: { title: newTitle, completed },
                 success: fetchTasks
             });
-        }
-    });
-
+        });
 });
+
 </script>
 </body>
 </html>
