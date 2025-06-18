@@ -149,6 +149,21 @@ function fetchTasks() {
                 row.find('.edit-task').removeClass('d-none');
             }
         });
+        $(document).on('blur', '.task-edit-input', function () {
+            let row = $(this).closest('li');
+            let id = row.data('id');
+            let newTitle = $(this).val().trim();
+            let completed = row.find('.task-title').data('completed');
+
+            if (!newTitle) return;
+
+            $.ajax({
+                url: `/api/tasks/${id}`,
+                type: 'PUT',
+                data: { title: newTitle, completed },
+                success: fetchTasks
+            });
+        });
 
 });
 
