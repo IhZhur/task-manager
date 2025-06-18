@@ -19,13 +19,13 @@
         <input type="text" id="task-title" class="form-control me-2" placeholder="Enter task title">
         <button type="submit" class="btn btn-primary">Add Task</button>
     </form>
+    <div id="task-error" class="text-danger mb-3 d-none">Пожалуйста, введите название задачи.</div>
 
     <ul class="list-group" id="task-list"></ul>
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 $(document).ready(function () {
-
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -35,53 +35,73 @@ $(document).ready(function () {
     $('#filter-buttons').on('click', 'button', function () {
         $('#filter-buttons button').removeClass('active');
         $(this).addClass('active');
-        fetchTasks(); // обновим список с учётом фильтра
+        fetchTasks();
     });
 
-    fetchTasks(); // первая загрузка задач
+    fetchTasks();
 
-function fetchTasks() {
-    $.get('/api/tasks', function(tasks) {
-        $('#task-list').empty();
-        const filter = $('#filter-buttons .active').data('filter');
+    function fetchTasks() {
+        $.get('/api/tasks', function(tasks) {
+            $('#task-list').empty();
+            const filter = $('#filter-buttons .active').data('filter');
 
-        tasks.forEach(function(task) {
-            if (
-                (filter === 'completed' && !task.completed) ||
-                (filter === 'active' && task.completed)
-            ) return;
+            tasks.forEach(function(task) {
+                if ((filter === 'completed' && !task.completed) ||
+                    (filter === 'active' && task.completed)) return;
 
-            $('#task-list').append(`
-                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
-                    <div class="flex-grow-1">
-                        <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
-                        <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
-                    </div>
-                    <div class="ms-3 d-flex">
-                        <button class="btn btn-sm btn-primary d-none save-task me-1">
-                            <i class="bi bi-save"></i>
-                        </button>
-                        <button class="btn btn-sm btn-secondary edit-task me-1">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">
-                            <i class="bi bi-check2"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">
-                            <i class="bi bi-x"></i>
-                        </button>
-                    </div>
-                </li>
-            `);
+                $('#task-list').append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
+                        <div class="flex-grow-1">
+                            <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
+                            <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
+                        </div>
+                        <div class="ms-3 d-flex">
+                            <button class="btn btn-sm btn-primary d-none save-task me-1">
+                                <i class="bi bi-save"></i>
+                            </button>
+                            <button class="btn btn-sm btn-secondary edit-task me-1">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">
+                                <i class="bi bi-check2"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </li>
+                `);
+            });
         });
-    });
-}
+    }
 
+    function updateTask(row, newTitle, completed) {
+        const id = row.data('id');
+        if (!newTitle) {
+            row.find('.task-edit-input').addClass('is-invalid');
+            return false;
+        } else {
+            row.find('.task-edit-input').removeClass('is-invalid');
+        }
+
+        $.ajax({
+            url: `/api/tasks/${id}`,
+            type: 'PUT',
+            data: { title: newTitle, completed },
+            success: fetchTasks
+        });
+
+        return true;
+    }
 
     $('#task-form').on('submit', function (e) {
         e.preventDefault();
-        let title = $('#task-title').val();
-        if (!title.trim()) return;
+        const title = $('#task-title').val().trim();
+        if (!title) {
+            $('#task-title').addClass('is-invalid');
+            return;
+        }
+        $('#task-title').removeClass('is-invalid');
 
         $.post('/api/tasks', { title }, function () {
             $('#task-title').val('');
@@ -90,7 +110,7 @@ function fetchTasks() {
     });
 
     $(document).on('click', '.delete-task', function () {
-        let id = $(this).data('id');
+        const id = $(this).data('id');
 
         $.ajax({
             url: `/api/tasks/${id}`,
@@ -100,10 +120,10 @@ function fetchTasks() {
     });
 
     $(document).on('click', '.toggle-complete', function () {
-        let id = $(this).data('id');
-        let row = $(this).closest('li');
-        let title = row.find('.task-title').text().trim();
-        let completed = $(this).data('completed') ? 0 : 1;
+        const id = $(this).data('id');
+        const row = $(this).closest('li');
+        const title = row.find('.task-title').text().trim();
+        const completed = $(this).data('completed') ? 0 : 1;
 
         $.ajax({
             url: `/api/tasks/${id}`,
@@ -113,60 +133,63 @@ function fetchTasks() {
         });
     });
 
-    // ✏️ Показать поле для редактирования
-        $(document).on('click', '.edit-task', function () {
-            let row = $(this).closest('li');
-            row.find('.task-title').addClass('d-none');
-            row.find('.task-edit-input').removeClass('d-none').focus();
-            row.find('.save-task').removeClass('d-none');
-            row.find('.edit-task').addClass('d-none');
-        });
+    $(document).on('click', '.edit-task', function () {
+        const row = $(this).closest('li');
+        row.find('.task-title').addClass('d-none');
+        row.find('.task-edit-input').removeClass('d-none').focus();
+        row.find('.save-task').removeClass('d-none');
+        row.find('.edit-task').addClass('d-none');
+    });
 
-    // 💾 Сохранение по Enter
-    
-        $(document).on('click', '.save-task', function () {
-            let row = $(this).closest('li');
-            let id = row.data('id');
-            let newTitle = row.find('.task-edit-input').val().trim();
-            let completed = row.find('.task-title').data('completed');
+    $(document).on('click', '.save-task', function () {
+        const row = $(this).closest('li');
+        const newTitle = row.find('.task-edit-input').val().trim();
+        const completed = row.find('.task-title').data('completed');
 
-            if (!newTitle) return;
+        if (updateTask(row, newTitle, completed)) {
+            row.find('.task-edit-input').addClass('d-none');
+            row.find('.task-title').removeClass('d-none');
+            row.find('.save-task').addClass('d-none');
+            row.find('.edit-task').removeClass('d-none');
+        }
+    });
 
-            $.ajax({
-                url: `/api/tasks/${id}`,
-                type: 'PUT',
-                data: { title: newTitle, completed },
-                success: fetchTasks
-            });
-        });
-        // ⎋ Escape — отмена редактирования
-        $(document).on('keydown', '.task-edit-input', function (e) {
-            if (e.key === 'Escape') {
-                let row = $(this).closest('li');
+    $(document).on('keydown', '.task-edit-input', function (e) {
+        const row = $(this).closest('li');
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const newTitle = $(this).val().trim();
+            const completed = row.find('.task-title').data('completed');
+
+            if (updateTask(row, newTitle, completed)) {
                 row.find('.task-edit-input').addClass('d-none');
                 row.find('.task-title').removeClass('d-none');
                 row.find('.save-task').addClass('d-none');
                 row.find('.edit-task').removeClass('d-none');
             }
-        });
-        $(document).on('blur', '.task-edit-input', function () {
-            let row = $(this).closest('li');
-            let id = row.data('id');
-            let newTitle = $(this).val().trim();
-            let completed = row.find('.task-title').data('completed');
+        }
+        if (e.key === 'Escape') {
+            row.find('.task-edit-input').addClass('d-none');
+            row.find('.task-title').removeClass('d-none');
+            row.find('.save-task').addClass('d-none');
+            row.find('.edit-task').removeClass('d-none');
+        }
+    });
 
-            if (!newTitle) return;
+    $(document).on('blur', '.task-edit-input', function () {
+        const row = $(this).closest('li');
+        const newTitle = $(this).val().trim();
+        const completed = row.find('.task-title').data('completed');
 
-            $.ajax({
-                url: `/api/tasks/${id}`,
-                type: 'PUT',
-                data: { title: newTitle, completed },
-                success: fetchTasks
-            });
-        });
+        if (updateTask(row, newTitle, completed)) {
+            row.find('.task-edit-input').addClass('d-none');
+            row.find('.task-title').removeClass('d-none');
+            row.find('.save-task').addClass('d-none');
+            row.find('.edit-task').removeClass('d-none');
+        }
+    });
 
 });
-
 </script>
 </body>
 </html>
