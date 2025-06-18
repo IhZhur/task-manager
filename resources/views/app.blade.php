@@ -5,6 +5,7 @@
     <title>Task Manager</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
 <div class="container py-5">
@@ -57,9 +58,15 @@ function fetchTasks() {
                         <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
                     </div>
                     <div class="ms-3">
-                        <button class="btn btn-sm btn-secondary edit-task me-1">✎</button>
-                        <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">✓</button>
-                        <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">✕</button>
+                        <button class="btn btn-sm btn-secondary edit-task me-1">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">
+                            <i class="bi bi-check2"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">
+                            <i class="bi bi-x"></i>
+                        </button>
                     </div>
                 </li>
             `);
