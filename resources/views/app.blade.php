@@ -18,9 +18,15 @@
             <button type="button" class="btn btn-outline-secondary" data-filter="completed">Выполненные</button>
             <button type="button" class="btn btn-outline-secondary" data-filter="active">Активные</button>
         </div>
-        <form id="task-form" class="mb-3 d-flex">
-            <input type="text" id="task-title" class="form-control me-2" placeholder="Enter task title">
+        <form id="task-form" class="mb-3">
+            <div class="mb-2">
+                <input type="text" id="task-title" class="form-control" placeholder="Enter task title">
+            </div>
+            <div class="mb-2">
+                <textarea id="task-desc" class="form-control" placeholder="Enter description (optional)"></textarea>
+            </div>
             <button type="submit" class="btn btn-primary">Add Task</button>
+            <div id="task-error" class="text-danger mt-2 d-none">Пожалуйста, введите название задачи.</div>
         </form>
         <div id="task-error" class="text-danger mb-3 d-none">Пожалуйста, введите название задачи.</div>
 
@@ -69,16 +75,27 @@
             if ((filter === 'completed' && !task.completed) || (filter === 'active' && task.completed)) return;
 
             $('#task-list').append(`
-                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
-                    <div class="flex-grow-1">
-                        <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
-                        <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
+                <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-md-row" data-id="${task.id}">
+                    <div class="flex-grow-1 w-100">
+                        <span class="task-title fw-bold ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
+                        <input type="text" class="form-control d-none task-edit-input mb-2" value="${task.title}">
+
+                        <div class="task-desc">${task.description || ''}</div>
+                        <textarea class="form-control d-none task-desc-edit-input" rows="2">${task.description || ''}</textarea>
                     </div>
-                    <div class="ms-3 d-flex">
-                        <button class="btn btn-sm btn-primary d-none save-task me-1"><i class="bi bi-save"></i></button>
-                        <button class="btn btn-sm btn-secondary edit-task me-1"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}"><i class="bi bi-check2"></i></button>
-                        <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}"><i class="bi bi-x"></i></button>
+                    <div class="ms-md-3 mt-3 mt-md-0 d-flex">
+                        <button class="btn btn-sm btn-primary d-none save-task me-1">
+                            <i class="bi bi-save"></i>
+                        </button>
+                        <button class="btn btn-sm btn-secondary edit-task me-1">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">
+                            <i class="bi bi-check2"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">
+                            <i class="bi bi-x"></i>
+                        </button>
                     </div>
                 </li>
             `);
@@ -118,8 +135,9 @@
             fetchTasks(page);
         });
 
-        function updateTask(row, newTitle, completed) {
+        function updateTask(row, newTitle, completed, newDescription) {
             const id = row.data('id');
+
             if (!newTitle) {
                 row.find('.task-edit-input').addClass('is-invalid');
                 return false;
@@ -130,12 +148,12 @@
             $.ajax({
                 url: `/api/tasks/${id}`,
                 type: 'PUT',
-                data: { title: newTitle, completed },
+                data: { title: newTitle, completed, description: newDescription },
                 success: function () {
                     fetchTasks();
                     showToast('Задача обновлена', 'info');
-                }
-            });
+                    }
+                });
             return true;
         }
 
@@ -148,20 +166,25 @@
         $('#task-form').on('submit', function (e) {
             e.preventDefault();
             const title = $('#task-title').val().trim();
+            const description = $('#task-desc').val().trim(); // 🔸 Новое поле
+
             if (!title) {
                 $('#task-title').addClass('is-invalid');
                 $('#task-error').removeClass('d-none');
                 return;
             }
+
             $('#task-title').removeClass('is-invalid');
             $('#task-error').addClass('d-none');
 
-            $.post('/api/tasks', { title }, function () {
+            $.post('/api/tasks', { title, description }, function () {
                 $('#task-title').val('');
+                $('#task-desc').val(''); // 🔸 Очищаем описание
                 fetchTasks();
                 showToast('Задача добавлена');
             });
         });
+
 
         $(document).on('click', '.delete-task', function () {
             const id = $(this).data('id');
@@ -194,8 +217,8 @@
 
         $(document).on('click', '.edit-task', function () {
             const row = $(this).closest('li');
-            row.find('.task-title').addClass('d-none');
-            row.find('.task-edit-input').removeClass('d-none').focus();
+            row.find('.task-title, .task-desc').addClass('d-none');
+            row.find('.task-edit-input, .task-desc-edit-input').removeClass('d-none').first().focus();
             row.find('.save-task').removeClass('d-none');
             row.find('.edit-task').addClass('d-none');
         });
@@ -203,49 +226,72 @@
         $(document).on('click', '.save-task', function () {
             const row = $(this).closest('li');
             const newTitle = row.find('.task-edit-input').val().trim();
+            const newDescription = row.find('.task-desc-edit-input').val().trim();
             const completed = row.find('.task-title').data('completed');
 
-            if (updateTask(row, newTitle, completed)) {
+            if (updateTask(row, newTitle, completed, newDescription)) {
                 row.find('.task-edit-input').addClass('d-none');
-                row.find('.task-title').removeClass('d-none');
+                row.find('.task-title').removeClass('d-none').text(newTitle);
+                row.find('.task-desc-edit-input').addClass('d-none');
+                row.find('.task-desc').removeClass('d-none').text(newDescription);
                 row.find('.save-task').addClass('d-none');
                 row.find('.edit-task').removeClass('d-none');
             }
         });
 
-        $(document).on('keydown', '.task-edit-input', function (e) {
+
+        $(document).on('keydown', '.task-edit-input, .task-desc-edit-input', function (e) {
             const row = $(this).closest('li');
-            if (e.key === 'Enter') {
+
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                const newTitle = $(this).val().trim();
+
+                const newTitle = row.find('.task-edit-input').val().trim();
+                const newDescription = row.find('.task-desc-edit-input').val().trim();
                 const completed = row.find('.task-title').data('completed');
-                if (updateTask(row, newTitle, completed)) {
-                    row.find('.task-edit-input').addClass('d-none');
-                    row.find('.task-title').removeClass('d-none');
+
+                if (updateTask(row, newTitle, completed, newDescription)) {
+                    row.find('.task-edit-input, .task-desc-edit-input').addClass('d-none');
+                    row.find('.task-title').removeClass('d-none').text(newTitle);
+                    row.find('.task-desc').removeClass('d-none').text(newDescription);
                     row.find('.save-task').addClass('d-none');
                     row.find('.edit-task').removeClass('d-none');
                 }
             }
+
             if (e.key === 'Escape') {
-                row.find('.task-edit-input').addClass('d-none');
-                row.find('.task-title').removeClass('d-none');
+                row.find('.task-edit-input, .task-desc-edit-input').addClass('d-none');
+                row.find('.task-title, .task-desc').removeClass('d-none');
                 row.find('.save-task').addClass('d-none');
                 row.find('.edit-task').removeClass('d-none');
             }
         });
 
-        $(document).on('blur', '.task-edit-input', function () {
+
+        let blurTimeout;
+
+        $(document).on('blur', '.task-edit-input, .task-desc-edit-input', function () {
             const row = $(this).closest('li');
-            const newTitle = $(this).val().trim();
-            const completed = row.find('.task-title').data('completed');
 
-            if (updateTask(row, newTitle, completed)) {
-                row.find('.task-edit-input').addClass('d-none');
-                row.find('.task-title').removeClass('d-none');
-                row.find('.save-task').addClass('d-none');
-                row.find('.edit-task').removeClass('d-none');
-            }
+            clearTimeout(blurTimeout);
+            blurTimeout = setTimeout(() => {
+                const isAnyInputFocused = row.find('.task-edit-input:focus, .task-desc-edit-input:focus').length > 0;
+                if (isAnyInputFocused) return;
+
+                const newTitle = row.find('.task-edit-input').val().trim();
+                const newDescription = row.find('.task-desc-edit-input').val().trim();
+                const completed = row.find('.task-title').data('completed');
+
+                if (updateTask(row, newTitle, completed, newDescription)) {
+                    row.find('.task-edit-input, .task-desc-edit-input').addClass('d-none');
+                    row.find('.task-title').removeClass('d-none').text(newTitle);
+                    row.find('.task-desc').removeClass('d-none').text(newDescription);
+                    row.find('.save-task').addClass('d-none');
+                    row.find('.edit-task').removeClass('d-none');
+                }
+            }, 200); // 200 мс — достаточно, чтобы перейти во второе поле
         });
+
 
         $('#task-list').sortable({
             update: function () {

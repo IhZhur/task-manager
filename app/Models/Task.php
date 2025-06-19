@@ -10,8 +10,5 @@ class Task extends Model
     use HasFactory;
 
     // Разрешённые для массового присваивания поля
-    protected $fillable = [
-        'title',
-        'completed',
-    ];
+    protected $fillable = ['title', 'description', 'completed', 'position'];
 }

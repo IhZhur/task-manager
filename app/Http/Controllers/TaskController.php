@@ -27,18 +27,20 @@ class TaskController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-        {
-            $request->validate([
-                'title' => 'required|string|max:255',
-            ]);
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
 
-            $task = Task::create([
-                'title' => $request->title,
-                'completed' => false,
-            ]);
+        $task = Task::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'completed' => false,
+        ]);
 
-            return response()->json($task, 201);
-        }
+        return response()->json($task, 201);
+    }
 
     /**
      * Display the specified resource.
@@ -59,17 +61,20 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-     public function update(Request $request, Task $task)
+    public function update(Request $request, Task $task)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'completed' => 'required|boolean',
         ]);
 
-        $task->update($request->only('title', 'completed'));
+        $task->update($request->only('title', 'description', 'completed'));
 
         return response()->json($task);
     }
+
+
 
     /**
      * Remove the specified resource from storage.
