@@ -1,61 +1,127 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🗂 Task Manager (Laravel + jQuery)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
+## English Version
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Task Manager** is a modern single-page task management application built using **Laravel** and **jQuery**. It demonstrates AJAX-based CRUD operations, pagination, inline editing, drag-and-drop reordering, and toast notifications.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### ✅ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Add, edit, delete tasks via AJAX
+- Description field for each task
+- Inline editing of titles and descriptions
+- Bootstrap 5 interface with responsive layout
+- Filtering: All / Completed / Active
+- Pagination via `?page=1` and `paginate()`
+- Drag-and-drop sorting (jQuery UI)
+- Toast notifications using Bootstrap
+- CSRF protection for all requests
 
-## Learning Laravel
+### 🚀 Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Backend**: Laravel 10, MySQL
+- **Frontend**: jQuery, Bootstrap 5, Blade, jQuery UI
+- **API**: RESTful JSON endpoints (`routes/api.php`)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 📥 Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+git clone https://github.com/IhZhur/task-manager.git
+cd task-manager
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+# Setup DB credentials in .env
+php artisan migrate
+php artisan serve
+```
 
-## Laravel Sponsors
+### 📁 Project Structure
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Path                                        | Description                      |
+|---------------------------------------------|----------------------------------|
+| `resources/views/app.blade.php`             | Main HTML + JS frontend template |
+| `app/Http/Controllers/TaskController.php`   | REST API logic for tasks         |
+| `routes/api.php`                            | Laravel API routes               |
+| `app/Models/Task.php`                       | Eloquent model for tasks table   |
 
-### Premium Partners
+### 🚧 Roadmap
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- [ ] Tags and categorization
+- [ ] Subtasks and task hierarchy
+- [ ] User authentication
+- [ ] Dark mode support
+- [ ] Search & sort by date
+- [ ] Export to CSV/PDF
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 📝 License
 
-## Code of Conduct
+Licensed under the MIT License. See `LICENSE` for details.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Русская версия
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Task Manager** — это современное одностраничное приложение на **Laravel** и **jQuery** для управления задачами. Оно реализует операции CRUD через AJAX, пагинацию, редактирование на лету, drag-and-drop сортировку и всплывающие уведомления.
 
-## License
+### ✅ Возможности
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Добавление, редактирование и удаление задач через AJAX
+- Поле описания для каждой задачи
+- Инлайн-редактирование заголовков и описаний
+- Интерфейс на Bootstrap 5 с адаптивной версткой
+- Фильтрация: Все / Выполненные / Активные
+- Пагинация через `?page=1` и `paginate()`
+- Сортировка drag-and-drop (jQuery UI)
+- Уведомления Toast через Bootstrap
+- CSRF-защита для всех запросов
+
+### 🚀 Стек технологий
+
+- **Backend**: Laravel 10, MySQL
+- **Frontend**: jQuery, Bootstrap 5, Blade, jQuery UI
+- **API**: RESTful JSON API (`routes/api.php`)
+
+### 📥 Установка
+
+```bash
+git clone https://github.com/IhZhur/task-manager.git
+cd task-manager
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+# Укажите данные подключения к БД в .env
+php artisan migrate
+php artisan serve
+```
+
+### 📁 Структура проекта
+
+| Path                                        | Description                      |
+|---------------------------------------------|----------------------------------|
+| `resources/views/app.blade.php`             | Основной HTML + JS               |
+| `app/Http/Controllers/TaskController.php`   | API-контроллер                   |
+| `routes/api.php`                            | API-маршруты                     |
+| `app/Models/Task.php`                       | Eloquent для таблицы задач       |
+
+### 🚧 Дорожная карта
+
+
+- [ ] Категории и теги
+- [ ] Подзадачи и иерархия
+- [ ] Аутентификация пользователей
+- [ ] Поддержка тёмной темы
+- [ ] Поиск и сортировка по дате
+- [ ] Экспорт задач в CSV/PDF
+
+### 📝 Лицензия
+
+Проект распространяется по лицензии MIT. См. файл `LICENSE`.
+
+---
+
+**Author:** [IhZhur](https://github.com/IhZhur)  
+**Repository:** [task-manager](https://github.com/IhZhur/task-manager)
