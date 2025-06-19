@@ -25,6 +25,9 @@
         <div id="task-error" class="text-danger mb-3 d-none">Пожалуйста, введите название задачи.</div>
 
         <ul class="list-group" id="task-list"></ul>
+        <nav>
+            <ul class="pagination" id="pagination-controls"></ul>
+        </nav>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -55,38 +58,65 @@
             });
         }
 
-        function fetchTasks() {
-            $.get('/api/tasks', function(tasks) {
-                $('#task-list').empty();
-                const filter = $('#filter-buttons .active').data('filter');
-                tasks.forEach(function(task) {
-                    if ((filter === 'completed' && !task.completed) || (filter === 'active' && task.completed)) return;
+        let currentPage = 1;
 
-                    $('#task-list').append(`
-                        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
-                            <div class="flex-grow-1">
-                                <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
-                                <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
-                            </div>
-                            <div class="ms-3 d-flex">
-                                <button class="btn btn-sm btn-primary d-none save-task me-1">
-                                    <i class="bi bi-save"></i>
-                                </button>
-                                <button class="btn btn-sm btn-secondary edit-task me-1">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}">
-                                    <i class="bi bi-check2"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                        </li>
-                    `);
-                });
-            });
-        }
+        function fetchTasks(page = 1) {
+    $.get(`/api/tasks?page=${page}`, function (data) {
+        $('#task-list').empty();
+        const filter = $('#filter-buttons .active').data('filter');
+
+        data.data.forEach(function (task) {
+            if ((filter === 'completed' && !task.completed) || (filter === 'active' && task.completed)) return;
+
+            $('#task-list').append(`
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${task.id}">
+                    <div class="flex-grow-1">
+                        <span class="task-title ${task.completed ? 'text-decoration-line-through' : ''}" data-completed="${task.completed}">${task.title}</span>
+                        <input type="text" class="form-control d-none task-edit-input" value="${task.title}">
+                    </div>
+                    <div class="ms-3 d-flex">
+                        <button class="btn btn-sm btn-primary d-none save-task me-1"><i class="bi bi-save"></i></button>
+                        <button class="btn btn-sm btn-secondary edit-task me-1"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-success me-1 toggle-complete" data-id="${task.id}" data-completed="${task.completed}"><i class="bi bi-check2"></i></button>
+                        <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}"><i class="bi bi-x"></i></button>
+                    </div>
+                </li>
+            `);
+        });
+
+        renderPagination(data);
+    });
+}
+        function renderPagination(data) {
+    let pagination = '';
+
+    if (data.last_page <= 1) {
+        $('#pagination-controls').html('');
+        return;
+    }
+
+    if (data.current_page > 1) {
+        pagination += `<li class="page-item"><a class="page-link" href="#" data-page="${data.current_page - 1}">Предыдущая</a></li>`;
+    }
+
+    for (let i = 1; i <= data.last_page; i++) {
+        pagination += `<li class="page-item ${i === data.current_page ? 'active' : ''}">
+            <a class="page-link" href="#" data-page="${i}">${i}</a>
+        </li>`;
+    }
+
+    if (data.current_page < data.last_page) {
+        pagination += `<li class="page-item"><a class="page-link" href="#" data-page="${data.current_page + 1}">Следующая</a></li>`;
+    }
+
+    $('#pagination-controls').html(pagination);
+    }
+
+        $(document).on('click', '#pagination-controls a', function (e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            fetchTasks(page);
+        });
 
         function updateTask(row, newTitle, completed) {
             const id = row.data('id');
@@ -234,7 +264,7 @@
             }
         });
 
-        fetchTasks(); // загрузка при старте
+        fetchTasks(1); // загрузка при старте
     });
     </script>
 </body>
