@@ -1,127 +1,128 @@
-# 🗂 Task Manager (Laravel + jQuery)
+# Task Manager
 
-
-## English Version
-
-**Task Manager** is a modern single-page task management application built using **Laravel** and **jQuery**. It demonstrates AJAX-based CRUD operations, pagination, inline editing, drag-and-drop reordering, and toast notifications.
-
-### ✅ Features
-
-- Add, edit, delete tasks via AJAX
-- Description field for each task
-- Inline editing of titles and descriptions
-- Bootstrap 5 interface with responsive layout
-- Filtering: All / Completed / Active
-- Pagination via `?page=1` and `paginate()`
-- Drag-and-drop sorting (jQuery UI)
-- Toast notifications using Bootstrap
-- CSRF protection for all requests
-
-### 🚀 Tech Stack
-
-- **Backend**: Laravel 10, MySQL
-- **Frontend**: jQuery, Bootstrap 5, Blade, jQuery UI
-- **API**: RESTful JSON endpoints (`routes/api.php`)
-
-### 📥 Installation
-
-```bash
-git clone https://github.com/IhZhur/task-manager.git
-cd task-manager
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-# Setup DB credentials in .env
-php artisan migrate
-php artisan serve
-```
-
-### 📁 Project Structure
-
-| Path                                        | Description                      |
-|---------------------------------------------|----------------------------------|
-| `resources/views/app.blade.php`             | Main HTML + JS frontend template |
-| `app/Http/Controllers/TaskController.php`   | REST API logic for tasks         |
-| `routes/api.php`                            | Laravel API routes               |
-| `app/Models/Task.php`                       | Eloquent model for tasks table   |
-
-### 🚧 Roadmap
-
-- [ ] Tags and categorization
-- [ ] Subtasks and task hierarchy
-- [ ] User authentication
-- [ ] Dark mode support
-- [ ] Search & sort by date
-- [ ] Export to CSV/PDF
-
-
-### 📝 License
-
-Licensed under the MIT License. See `LICENSE` for details.
+A modern single-page task manager built with Laravel 12, PHP 8.2+, jQuery, and Bootstrap 5. Features AJAX CRUD, drag-and-drop reordering, inline editing, and pagination. No SPA frameworks—just Laravel API, Blade, and classic jQuery.
 
 ---
 
-## Русская версия
+## Features
 
-**Task Manager** — это современное одностраничное приложение на **Laravel** и **jQuery** для управления задачами. Оно реализует операции CRUD через AJAX, пагинацию, редактирование на лету, drag-and-drop сортировку и всплывающие уведомления.
-
-### ✅ Возможности
-
-- Добавление, редактирование и удаление задач через AJAX
-- Поле описания для каждой задачи
-- Инлайн-редактирование заголовков и описаний
-- Интерфейс на Bootstrap 5 с адаптивной версткой
-- Фильтрация: Все / Выполненные / Активные
-- Пагинация через `?page=1` и `paginate()`
-- Сортировка drag-and-drop (jQuery UI)
-- Уведомления Toast через Bootstrap
-- CSRF-защита для всех запросов
-
-### 🚀 Стек технологий
-
-- **Backend**: Laravel 10, MySQL
-- **Frontend**: jQuery, Bootstrap 5, Blade, jQuery UI
-- **API**: RESTful JSON API (`routes/api.php`)
-
-### 📥 Установка
-
-```bash
-git clone https://github.com/IhZhur/task-manager.git
-cd task-manager
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-# Укажите данные подключения к БД в .env
-php artisan migrate
-php artisan serve
-```
-
-### 📁 Структура проекта
-
-| Path                                        | Description                      |
-|---------------------------------------------|----------------------------------|
-| `resources/views/app.blade.php`             | Основной HTML + JS               |
-| `app/Http/Controllers/TaskController.php`   | API-контроллер                   |
-| `routes/api.php`                            | API-маршруты                     |
-| `app/Models/Task.php`                       | Eloquent для таблицы задач       |
-
-### 🚧 Дорожная карта
-
-
-- [ ] Категории и теги
-- [ ] Подзадачи и иерархия
-- [ ] Аутентификация пользователей
-- [ ] Поддержка тёмной темы
-- [ ] Поиск и сортировка по дате
-- [ ] Экспорт задач в CSV/PDF
-
-### 📝 Лицензия
-
-Проект распространяется по лицензии MIT. См. файл `LICENSE`.
+* Create, update, delete tasks via AJAX
+* Task description field
+* Inline editing for title and description
+* Bootstrap 5 responsive interface
+* Filter: All / Completed / Active
+* Pagination (`?page=1`), server-side via Laravel paginate
+* Drag-and-drop sorting (jQuery UI)
+* Toast notifications (Bootstrap)
+* CSRF protection for all AJAX requests
 
 ---
 
-**Author:** [IhZhur](https://github.com/IhZhur)  
-**Repository:** [task-manager](https://github.com/IhZhur/task-manager)
+## Requirements
+
+* PHP 8.2+
+* Composer
+* Node.js & npm
+* MySQL (or SQLite)
+
+---
+
+## Getting Started
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/IhZhur/task-manager.git
+   cd task-manager
+   ```
+2. **Install PHP dependencies:**
+
+   ```bash
+   composer install
+   ```
+3. **Install frontend dependencies:**
+
+   ```bash
+   npm install
+   ```
+4. **Copy env and generate key:**
+
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+5. **Configure database in ********`.env`********:**
+   (Example for MySQL)
+
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=task_manager
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+   (Example for SQLite)
+
+   ```env
+   DB_CONNECTION=sqlite
+   DB_DATABASE=/absolute/path/to/database.sqlite
+   ```
+6. **Run migrations:**
+
+   ```bash
+   php artisan migrate
+   ```
+7. **Build assets:**
+
+   ```bash
+   npm run build       # or npm run dev for watch mode
+   ```
+8. **Start the server:**
+
+   ```bash
+   php artisan serve
+   ```
+
+   Visit [http://localhost:8000](http://localhost:8000)
+
+---
+
+## API Overview
+
+* `GET    /api/tasks`        — List tasks (with pagination)
+* `POST   /api/tasks`        — Create a new task
+* `GET    /api/tasks/{id}`   — Get task by ID
+* `PUT    /api/tasks/{id}`   — Update task
+* `DELETE /api/tasks/{id}`   — Delete task
+* `PUT    /api/tasks/sort`   — Save new task order (drag-and-drop)
+
+All API endpoints return JSON. CSRF tokens are required for mutations.
+
+---
+
+## Project Structure
+
+* `app/Http/Controllers/TaskController.php` — All task logic (CRUD, sorting)
+* `routes/api.php` — API routes
+* `resources/views/app.blade.php` — Main interface (Blade)
+* `public/` — Entry point and assets
+* `config/` — Laravel config
+* `database/` — Migrations
+
+---
+
+## Testing
+
+Add your own tests to `tests/` if needed. Basic test skeleton provided.
+
+---
+
+## Author
+
+IhZhur
+
+---
+
+##
